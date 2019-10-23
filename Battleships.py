@@ -17,8 +17,8 @@ settings = {
 #if settings["music"] == True:
 
 from terminaltables import *
-from BattleShips.Coordinates_tools import *
-from BattleShips.Ships import *
+from Coordinates_tools import *
+from Ships import *
 from random import *
 from time import *
 
