@@ -98,6 +98,9 @@ class IA_hunt_destroy(IA):
         self.mode = "hunt"
         self.last_coo = "none"
         self.suspected_cells = []
+        self.des_mode = ""
+        self.lasthit = ""
+
 
     def guess(self):
         if self.mode == "hunt":
@@ -123,8 +126,9 @@ class IA_hunt_destroy(IA):
                 ship_status = ""
             results = results[0]
 
-        if ship_status == "destroyed":
+        if ship_status == "destroyed": # if we destroyed the ship, we are back at hunting
             self.mode = "hunt"
+            return
 
         # if results == "retry" or results == "":
         #     # That's not supposed to happen, but it should not interfere with the ia
@@ -132,30 +136,56 @@ class IA_hunt_destroy(IA):
         #
         # ... it interfered
 
-        if results == "water hit":
-            if self.mode == "hunt":
+        #-Destroy mode------------
+        #      ?
+        #     ?+?
+        #      ?
+        #
+        # first we determine the direction of the ship
+        #  --> hit up, right, down, left
+        #
+        # we hit at in one dir, fist we  we check if the first shot was at the edge of the ship
+        #
+        # if we hit water, then we continue to hit
+
+        if self.mode == "hunt":
+            if results == "water hit":
                 # nothing to do
                 return
-        elif results == "hit":
-
-            if self.mode == "hunt":
+            elif results == "hit":
                 self.mode = "destroy"
+                self.lasthit = self.last_coo
+                self.firsthit = self.last_coo
+                self.suspected_cells = neighbour_cells(self.last_coo)
+                self.supected_dirs = ["top", "right", "down", "left"]
 
         if self.mode == "destroy":
-            if results == "hit":
-                self.suspected_cells.extend(neighbour_cells(self.last_coo))
+            if results == "water hit":
+                self.supected_dirs.pop(0)
+                self.lasthit = self.firsthit
+            elif results == "hit":
+                self.lasthit = self.last_coo
 
-            for hitted in self.cells_hitted:
+            self.nexthit = self.lasthit
+            while self.nexthit in self.cells_hitted:
                 try:
-                    self.suspected_cells.remove(hitted)
-                except:
-                    pass
+                    if self.supected_dirs[0] == "top":
+                        self.nexthit = coordinates_calcs(self.nexthit, "+", (0, -1))
+                    elif self.supected_dirs[0] == "right":
+                        self.nexthit = coordinates_calcs(self.nexthit, "+", (1, 0))
+                    elif self.supected_dirs[0] == "down":
+                        self.nexthit = coordinates_calcs(self.nexthit, "+", (0, 1))
+                    elif self.supected_dirs[0] == "left":
+                        self.nexthit = coordinates_calcs(self.nexthit, "+", (-1, 0))
 
-            if self.suspected_cells == []:
-                self.mode = "hunt"
-            else:
-                self.nexthit = self.suspected_cells[0]
+                    if self.nexthit in self.cells_hitted:
+                        self.supected_dirs.pop(0)
+                        self.nexthit = self.firsthit
 
+                except GridOverflowError:
+                    self.supected_dirs.pop(0)
+                    self.nexthit = self.firsthit
+        
 
 def Generate_map():
     ship_list = []
