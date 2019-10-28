@@ -1,4 +1,4 @@
-from Coordinates_tools import *
+from Methodes import *
 
 
 class Ship:

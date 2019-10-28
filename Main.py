@@ -9,6 +9,11 @@
 # "+" = battleship hit
 # ----------------------------------------------
 
+#todo battleship not touching
+#todo rework hunter
+
+#todo other gamemodes
+
 from Battleships import *
 
 menu_state = "title_screen"

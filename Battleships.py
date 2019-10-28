@@ -1,9 +1,9 @@
 from terminaltables import *
-from Coordinates_tools import *
+from Methodes import *
 from Ships import *
 from random import *
 from time import *
-from Indiethingies import *
+from Settings import *
 
 
 class battle_grid:
@@ -157,10 +157,7 @@ class IA_hunt_destroy(IA):
                 self.nexthit = self.suspected_cells[0]
 
 
-def SpeedrunMode():
-
-    # generating the map
-
+def Generate_map():
     ship_list = []
     grid_used = []
     ship_grid = battle_grid()
@@ -224,6 +221,14 @@ def SpeedrunMode():
     place_random_ship("cruiser")
     place_random_ship("battleship")
     place_random_ship("submarine")
+    return common_grid, hit_grid, ship_grid, ship_list
+
+
+def SpeedrunMode():
+
+    # generating the map
+
+    common_grid, hit_grid, ship_grid, ship_list = Generate_map()
 
     def gamehost(coo):
         # global common_grid, hit_grid, ship_grid
@@ -260,8 +265,6 @@ def SpeedrunMode():
                         common_grid.grid_dict_change(coo, ["+", common_grid.grid_dict[coo]])
                         hit_grid.grid_dict[coo] = "+"
                         return hit_dectecc
-
-
 
     # ready to start the game
 
