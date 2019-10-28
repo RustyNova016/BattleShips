@@ -164,12 +164,14 @@ def Generate_map():
     common_grid = battle_grid()
     hit_grid = battle_grid()
 
-    def place_random_ship(ship_type):
+    def place_random_ship(ship_type, grid_used):
         global ship
         while 1:
             try:
-                pos = chr(96 + randint(1, 10)) + str(randint(1, 10))
-                direction = choice(["up", "down", "right", "left"])
+                pos = chr(96 + randint(1, 10)) + str(randint(1, 10))  # choose a random point in the grid
+                direction = choice(["up", "down", "right", "left"])   # choose a random direction
+
+                # we create a ship
 
                 if ship_type == "destroyer":
                     ship = Destroyer(pos, direction)
@@ -182,13 +184,22 @@ def Generate_map():
                 elif ship_type == "submarine":
                     ship = Submarine(pos, direction)
 
+                # does the ship overlap?
+
                 overlap = False
                 for cells in ship.grid_cells:
                     if cells in grid_used:
                         overlap = True
 
-                if overlap == False:
-                    grid_used.extend(ship.grid_cells)
+                if overlap == False:  # no, so we put it on the grid
+
+                    for celll in ship.grid_cells:
+                        grid_used.extend(celll)
+                        grid_used.extend(neighbour_cells(celll))
+
+                    grid_used = remove_list_duplicates(grid_used)
+
+                    # and we inform the grid
 
                     if ship_type == "destroyer":
                         for coo in ship.grid_cells:
@@ -213,14 +224,15 @@ def Generate_map():
 
                     ship_list.append(ship)
                     break
-            except GridOverflowError:
+
+            except GridOverflowError:  # it's like ovelaping, we retry it
                 pass
 
-    place_random_ship("destroyer")
-    place_random_ship("carrier")
-    place_random_ship("cruiser")
-    place_random_ship("battleship")
-    place_random_ship("submarine")
+    place_random_ship("destroyer", grid_used)
+    place_random_ship("carrier", grid_used)
+    place_random_ship("cruiser", grid_used)
+    place_random_ship("battleship", grid_used)
+    place_random_ship("submarine", grid_used)
     return common_grid, hit_grid, ship_grid, ship_list
 
 

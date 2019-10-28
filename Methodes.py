@@ -80,3 +80,11 @@ def neighbour_cells(coo):
             pass
 
     return out
+
+
+def remove_list_duplicates(listt):
+    out = []
+    for element in listt:
+        if not element in out:
+            out.append(element)
+    return out
