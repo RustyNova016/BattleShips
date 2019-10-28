@@ -1,6 +1,5 @@
+from Coordinates_tools import *
 
-from BattleShips.Coordinates_tools import *
-from random import *
 
 class Ship:
     def __init__(self, size, head_coordinates, direction):
@@ -60,7 +59,7 @@ class Carrier(Ship):
 
 class Battleship(Ship):
     def __init__(self, head_coordinates, direction):
-        Ship.__init__(self,4, head_coordinates, direction)
+        Ship.__init__(self, 4, head_coordinates, direction)
         self.ship_name = "Battleship"
 
 
@@ -74,4 +73,3 @@ class Submarine(Ship):
     def __init__(self, head_coordinates, direction):
         Ship.__init__(self, 3, head_coordinates, direction)
         self.ship_name = "Submarine"
-

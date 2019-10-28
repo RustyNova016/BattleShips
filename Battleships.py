@@ -1,26 +1,9 @@
-# ----------------------------------------------
-# Small python workout
-# Inspired from this Vsauce video
-# https://www.youtube.com/watch?v=LbALFZoRrw8
-# ----------------------------------------------
-# Feel free to use it :D
-# " " = nothing
-# "-" = water hit
-# "+" = battleship hit
-# ----------------------------------------------
-
-settings = {
-    "music": True,
-    "colors": False
-}
-
-#if settings["music"] == True:
-
 from terminaltables import *
 from Coordinates_tools import *
 from Ships import *
 from random import *
 from time import *
+from Indiethingies import *
 
 
 class battle_grid:
@@ -72,17 +55,17 @@ ship_grid = battle_grid()
 hit_grid = battle_grid()
 ship_list = []
 
-
 class IA:
     def __init__(self):
         self.cells_hitted = []
         self.cells_left = []
         self.AI_name = "CORE"
+        self.AI_nickname = "This message should not appear, oh no..."
         char = "a"
         for ia in range(1, 11):
             for ib in range(1,11):
                 self.cells_left.append(char + str(ib))
-            char = chr(ord(char) + 1)  # Get the ASCII numbr of char, adding 1, returning to string
+            char = chr(ord(char) + 1)  # Get the ASCII number of char, adding 1, returning to string
 
     def guess(self):
         pass
@@ -95,6 +78,7 @@ class IA_random(IA):
     def __init__(self):
         IA.__init__(self)
         self.AI_name = "Random IA"
+        self.AI_nickname = "Sergeant " + choice(AI_nicknames_list)
 
     def guess(self):
         try:
@@ -110,6 +94,7 @@ class IA_hunt_destroy(IA):
     def __init__(self):
         IA.__init__(self)
         self.AI_name = "Hunt & destroy"
+        self.AI_nickname = "Major " + choice(AI_nicknames_list)
         self.mode = "hunt"
         self.last_coo = "none"
         self.suspected_cells = []
@@ -172,7 +157,7 @@ class IA_hunt_destroy(IA):
                 self.nexthit = self.suspected_cells[0]
 
 
-def game():
+def SpeedrunMode():
 
     # generating the map
 
@@ -276,56 +261,112 @@ def game():
                         hit_grid.grid_dict[coo] = "+"
                         return hit_dectecc
 
+
+
     # ready to start the game
 
     common_grid.update_grid()
-    print(common_grid)
     ship_grid.backup_grid()
     common_grid.backup_grid()
     hit_grid.update_grid()
     hit_grid.backup_grid()
-    scoreboard = [["Player name", "Score"]]
+    scoreboard = []
 
-    IA_list = [IA_random(), IA_random(), IA_hunt_destroy(), IA_hunt_destroy()]
-    for AI in IA_list:
-        i = 0
+    player_list = []
+    if settings["N_Players"] != 0:
+        for i in range(1, settings["N_Players"] + 1):
+            player_list.append("Player " + str(i))
 
-        ship_grid.reset_grid_dict()
-        hit_grid.reset_grid_dict()
-        common_grid.reset_grid_dict()
-        for shhip in ship_list:
-            shhip.reset()
+    if player_list != []:
+        for player in player_list:
+            i = 0
 
-        while 1:
-            bruh = AI.guess()
-            i += 1
+            ship_grid.reset_grid_dict()
+            hit_grid.reset_grid_dict()
+            common_grid.reset_grid_dict()
+            for shhip in ship_list:
+                shhip.reset()
 
-            bruh = gamehost(bruh)
-            hit_grid.update_grid()
-            common_grid.update_grid()
-            print(common_grid)
-            #rint(hit_grid)
+            print(hit_grid)
+            while 1:
+                bruh = input("")
+                i += 1
+                bruh = gamehost(bruh)
+                hit_grid.update_grid()
+                common_grid.update_grid()
+                print(hit_grid)
 
-            AI.recalibration(bruh)
-            #sleep(1)
+                if bruh[0] == "water hit":
+                    print("Water")
+                elif bruh[0] == "retry":
+                    print("Invalid coordinates, try again")
+                    i += -1
+                elif bruh[0] == "hit":
+                    if bruh[1] == "operational":
+                        print("hit")
+                    else:
+                        print(bruh[2] + " sunken!")
+                #sleep(1)
 
-            gamewon = True
-            for shit in ship_list:
-                if shit.status == "operational":
-                    gamewon = False
+                gamewon = True
+                for shit in ship_list:
+                    if shit.status == "operational":
+                        gamewon = False
 
-            if gamewon:
-                break
+                if gamewon:
+                    break
 
-        print("---------------------------------------------------")
-        scoreboard.append([AI.AI_name, str(i) + " / 100"])
+            print("---------------------------------------------------")
+            scoreboard.append([player, i])
 
+    IA_list = []
+    if settings["N_AI_Random"] != 0:
+        for i in range(0, settings["N_AI_Random"]):
+            IA_list.append(IA_random())
+
+    if settings["N_AI_hunt_destroy"] != 0:
+        for i in range(0, settings["N_AI_hunt_destroy"]):
+            IA_list.append(IA_hunt_destroy())
+
+    if IA_list != []:
+        for AI in IA_list:
+            i = 0
+
+            ship_grid.reset_grid_dict()
+            hit_grid.reset_grid_dict()
+            common_grid.reset_grid_dict()
+            for shhip in ship_list:
+                shhip.reset()
+
+            while 1:
+                bruh = AI.guess()
+                i += 1
+
+                bruh = gamehost(bruh)
+                hit_grid.update_grid()
+                common_grid.update_grid()
+                print(common_grid)
+                #rint(hit_grid)
+
+                AI.recalibration(bruh)
+                if bruh[0] == "retry":
+                    i += -1
+                #sleep(1)
+
+                gamewon = True
+                for shit in ship_list:
+                    if shit.status == "operational":
+                        gamewon = False
+
+                if gamewon:
+                    break
+
+            print("---------------------------------------------------")
+            scoreboard.append([AI.AI_nickname, i])
+
+    def takeSecond(elem):
+        return elem[1]
+    scoreboard.sort(key=takeSecond)
+    scoreboard.insert(0, ["Player name", "Score"])
     scoreboard = SingleTable(scoreboard)
     print(scoreboard.table)
-
-
-def __main__():
-    game()
-
-
-__main__()
