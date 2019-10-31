@@ -51,11 +51,31 @@ hit_grid = battle_grid()
 ship_list = []
 
 class IA:
-    def __init__(self):
+    def __init__(self, modules):
+        self.modules = modules
+        if self.modules["hunt module"] == "random" and not self.modules["no hit zone"] and not self.modules["destroy mode"]:
+            self.AI_nickname = "Sergeant " + choice(AI_nicknames_list)
+
+        elif self.modules["hunt module"] == "random" and self.modules["destroy mode"] and not self.modules["no hit zone"]:
+            self.AI_nickname = "Lieutenant " + choice(AI_nicknames_list)
+
+        elif self.modules["hunt module"] == "random" and self.modules["destroy mode"] and self.modules["no hit zone"]:
+            self.AI_nickname = "Captain " + choice(AI_nicknames_list)
+
+        elif (self.modules["hunt module"] == "check" and not self.modules["destroy mode"] and not self.modules["no hit zone"]) or (self.modules["hunt module"] == "check" and self.modules["destroy mode"] and not self.modules["no hit zone"]):
+            self.modules["destroy mode"] = True
+            self.AI_nickname = "Colonel " + choice(AI_nicknames_list)
+
+        elif self.modules["hunt module"] == "check" and self.modules["destroy mode"] and self.modules["no hit zone"]:
+            self.AI_nickname = "General " + choice(AI_nicknames_list)
+
         self.cells_hitted = []
         self.cells_left = []
-        self.AI_name = "CORE"
-        self.AI_nickname = "This message should not appear, oh no..."
+        self.mode = "hunt"
+        self.last_coo = "none"
+        self.suspected_cells = []
+        self.des_mode = ""
+        self.lasthit = ""
         char = "a"
         for ia in range(1, 11):
             for ib in range(1,11):
@@ -63,124 +83,106 @@ class IA:
             char = chr(ord(char) + 1)  # Get the ASCII number of char, adding 1, returning to string
 
     def guess(self):
-        pass
-
-    def recalibration(self, results=""):
-        pass
-
-
-class IA_random(IA):
-    def __init__(self):
-        IA.__init__(self)
-        self.AI_name = "Random IA"
-        self.AI_nickname = "Sergeant " + choice(AI_nicknames_list)
-
-    def guess(self):
-        try:
-            choi = choice(self.cells_left)
-            self.cells_hitted.append(choi)
-            self.cells_left.remove(choi)
-            return choi
-        except:
-            pass
-
-
-class IA_hunt_destroy(IA):
-    def __init__(self):
-        IA.__init__(self)
-        self.AI_name = "Hunt & destroy"
-        self.AI_nickname = "Major " + choice(AI_nicknames_list)
-        self.mode = "hunt"
-        self.last_coo = "none"
-        self.suspected_cells = []
-        self.des_mode = ""
-        self.lasthit = ""
-
-
-    def guess(self):
-        if self.mode == "hunt":
-            choi = choice(self.cells_left)
-        else:
+        if self.modules["destroy mode"] and self.mode == "destroy":
             choi = self.nexthit
+
+        elif self.modules["hunt module"] == "random":
+            choi = choi = choice(self.cells_left)
 
         if choi == self.last_coo:
             print("warning!!!!! same coo !!!!!!")
-        else:
-            self.cells_hitted.append(choi)
-            self.cells_left.remove(choi)
-            self.last_coo = choi
+
+        self.cells_hitted.append(choi)
+        self.cells_left.remove(choi)
+        self.last_coo = choi
         return choi
 
     def recalibration(self, results=""):
-        # first, cleaning input
-        ship_status = ""
-        if type(results) == list:
-            try:
-                ship_status = results[1]
-            except:
-                ship_status = ""
-            results = results[0]
-
-        if ship_status == "destroyed": # if we destroyed the ship, we are back at hunting
-            self.mode = "hunt"
-            return
-
-        # if results == "retry" or results == "":
-        #     # That's not supposed to happen, but it should not interfere with the ia
-        #     return
-        #
-        # ... it interfered
-
-        #-Destroy mode------------
-        #      ?
-        #     ?+?
-        #      ?
-        #
-        # first we determine the direction of the ship
-        #  --> hit up, right, down, left
-        #
-        # we hit at in one dir, fist we  we check if the first shot was at the edge of the ship
-        #
-        # if we hit water, then we continue to hit
-
-        if self.mode == "hunt":
-            if results == "water hit":
-                # nothing to do
-                return
-            elif results == "hit":
-                self.mode = "destroy"
-                self.lasthit = self.last_coo
-                self.firsthit = self.last_coo
-                self.suspected_cells = neighbour_cells(self.last_coo)
-                self.supected_dirs = ["top", "right", "down", "left"]
-
-        if self.mode == "destroy":
-            if results == "water hit":
-                self.supected_dirs.pop(0)
-                self.lasthit = self.firsthit
-            elif results == "hit":
-                self.lasthit = self.last_coo
-
-            self.nexthit = self.lasthit
-            while self.nexthit in self.cells_hitted:
+        if self.modules["destroy mode"]:
+            # first, cleaning input
+            ship_status = ""
+            if type(results) == list:
                 try:
-                    if self.supected_dirs[0] == "top":
-                        self.nexthit = coordinates_calcs(self.nexthit, "+", (0, -1))
-                    elif self.supected_dirs[0] == "right":
-                        self.nexthit = coordinates_calcs(self.nexthit, "+", (1, 0))
-                    elif self.supected_dirs[0] == "down":
-                        self.nexthit = coordinates_calcs(self.nexthit, "+", (0, 1))
-                    elif self.supected_dirs[0] == "left":
-                        self.nexthit = coordinates_calcs(self.nexthit, "+", (-1, 0))
+                    ship_status = results[1]
+                except:
+                    ship_status = ""
+                results = results[0]
 
-                    if self.nexthit in self.cells_hitted:
+            if ship_status == "destroyed":  # if we destroyed the ship, we are back at hunting
+                self.mode = "hunt"
+                return
+
+            # if results == "retry" or results == "":
+            #     # That's not supposed to happen, but it should not interfere with the ia
+            #     return
+            #
+            # ... it interfered
+
+            # -Destroy mode------------
+            #      ?
+            #     ?+?
+            #      ?
+            #
+            # first we determine the direction of the ship
+            #  --> hit up, right, down, left
+            #
+            # we hit at in one dir, fist we  we check if the first shot was at the edge of the ship
+            #
+            # if we hit water, then we continue to hit
+
+            if self.mode == "hunt":
+                if results == "water hit":
+                    # nothing to do
+                    return
+                elif results == "hit":
+                    self.mode = "destroy"
+                    self.lasthit = self.last_coo
+                    self.firsthit = self.last_coo
+                    self.suspected_cells = neighbour_cells(self.last_coo)
+                    self.supected_dirs = ["top", "right", "down", "left"]
+
+            if self.mode == "destroy":
+                if results == "water hit":
+                    self.supected_dirs.pop(0)
+                    self.lasthit = self.firsthit
+                elif results == "hit":
+                    self.lasthit = self.last_coo
+
+                self.nexthit = self.lasthit
+                while self.nexthit in self.cells_hitted:
+                    try:
+                        if self.supected_dirs[0] == "top":
+                            self.nexthit = coordinates_calcs(self.nexthit, "+", (0, -1))
+                        elif self.supected_dirs[0] == "right":
+                            self.nexthit = coordinates_calcs(self.nexthit, "+", (1, 0))
+                        elif self.supected_dirs[0] == "down":
+                            self.nexthit = coordinates_calcs(self.nexthit, "+", (0, 1))
+                        elif self.supected_dirs[0] == "left":
+                            self.nexthit = coordinates_calcs(self.nexthit, "+", (-1, 0))
+
+                        if self.nexthit in self.cells_hitted:
+                            self.supected_dirs.pop(0)
+                            self.nexthit = self.firsthit
+
+                    except GridOverflowError:
                         self.supected_dirs.pop(0)
                         self.nexthit = self.firsthit
 
-                except GridOverflowError:
-                    self.supected_dirs.pop(0)
-                    self.nexthit = self.firsthit
+    def hunt_checker(self):
+        pass
 
+    def destroy_mode(self):
+        pass
+
+    def no_hit_zone(self):
+        pass
+
+
+def IA_random():
+    return IA(ai_random)
+
+def IA_hunt_destroy():
+    return IA(ai_hunter)
 
 def Generate_map():
     ship_list = []
