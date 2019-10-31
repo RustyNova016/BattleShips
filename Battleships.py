@@ -171,9 +171,6 @@ class IA:
     def hunt_checker(self):
         pass
 
-    def destroy_mode(self):
-        pass
-
     def no_hit_zone(self):
         pass
 
