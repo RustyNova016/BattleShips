@@ -1,9 +1,4 @@
-from terminaltables import *
-from Methodes import *
-from Ships import *
-from random import *
-from time import *
-from Settings import *
+from Loader import *
 
 
 class battle_grid:
@@ -185,7 +180,7 @@ class IA_hunt_destroy(IA):
                 except GridOverflowError:
                     self.supected_dirs.pop(0)
                     self.nexthit = self.firsthit
-        
+
 
 def Generate_map():
     ship_list = []

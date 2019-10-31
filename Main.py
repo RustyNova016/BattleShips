@@ -90,7 +90,7 @@ while 1:
         play()
     elif menu_state == "speedrun_init":
         speedrun_init()
-    elif menu_state == "quit":
+    elif menu_state == "quit" or menu_state == "stop":
         break
     else:
         print("/!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\\")
