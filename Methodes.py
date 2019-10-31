@@ -12,6 +12,8 @@ coo_dict = {
 
 }
 
+
+
 class GridOverflowError(Exception):
     """ uhm, that's not in the grid"""
 

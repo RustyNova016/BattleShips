@@ -11,6 +11,10 @@
 
 #todo other gamemodes
 
+print()
+print("Loading...")
+print()
+
 from Battleships import *
 
 menu_state = "title_screen"
@@ -21,38 +25,33 @@ def title_screen():
     print("------------------------------")
     print("   Welcome to BattleShips !   ")
     print("")
-    print("1) Play")
-    print("2) Settings")
-    print("0) Quit")
-
-    awnser = input("")
-    if awnser == "0":
-        menu_state = "quit"
-    elif awnser == "1":
-        menu_state = "play"
-    elif awnser == "2":
-        menu_state = "settings"
-
+    questions = [
+        {
+            'type': 'list',
+            'name': 'main',
+            'message': '',
+            'choices': ['Play', 'Settings', 'Quit'],
+            'filter': lambda val: val.lower()
+        }
+    ]
+    menu_state = prompt(questions, style=style)["main"]
 
 def play():
     global menu_state
     print("------------------------------")
-    print("            Gamemode ?        ")
     print("")
-    print("1) 1v1 (Not Implemented yet)")
-    print("2) Speedrun")
-    print("3) Battle royal (Not Implemented yet)")
-    print("0) Quit")
-
-    awnser = input("")
-    if awnser == "0":
+    questions = [
+        {
+            'type': 'list',
+            'name': 'main',
+            'message': 'Gamemode ?',
+            'choices': ['Speedrun', 'Return'],
+            'filter': lambda val: val.lower() + "_init"
+        }
+    ]
+    menu_state = prompt(questions, style=style)["main"]
+    if menu_state == "return_init":
         menu_state = "title_screen"
-    elif awnser == "1":
-        menu_state = "1v1_init"
-    elif awnser == "2":
-        menu_state = "speedrun_init"
-    elif awnser == "3":
-        menu_state = "battleroyal_init"
 
 
 def speedrun_init():
@@ -63,29 +62,82 @@ def speedrun_init():
     print("Try to get the lowest score!")
     print("")
 
-    settings["N_player"] = int(input("Number of players: "))
-    settings["N_AI_Random"] = int(input("Number of AI (Type: Random): "))
-    settings["N_AI_hunt_destroy"] = int(input("Number of AI (Type: Hunt & destroy): "))
+    questions = [
+        {
+            'type': 'input',
+            'name': 'N_player',
+            'message': 'Number of players: ',
+            'validate': NumberValidator,
+            'filter': lambda val: int(val)
+        },
+        {
+            'type': 'input',
+            'name': 'N_AI_Random',
+            'message': 'Number of AI (Type: Random): ',
+            'validate': NumberValidator,
+            'filter': lambda val: int(val)
+        },
+        {
+            'type': 'input',
+            'name': 'N_AI_hunt_destroy',
+            'message': 'Number of AI (Type: Hunt & destroy): ',
+            'validate': NumberValidator,
+            'filter': lambda val: int(val)
+        },
+        {
+            'type': 'list',
+            'name': 'ready',
+            'message': 'Gamemode ?',
+            'choices': ['Start', 'Return'],
+            'filter': lambda val: val.lower()
+        }
+    ]
 
-    print("")
-    print("Ready ?")
-    print(" 1) Play")
-    print(" 2) Change game settings")
-    print(" 0) return")
-    awnser = input("")
-    if awnser == "0":
+    awn = prompt(questions, style=style)
+    if awn["ready"] == "return":
         menu_state = "play"
-    elif awnser == "1":
+    else:
+        settings["N_Players"] = awn["N_player"]
+        settings["N_AI_Random"] = awn["N_AI_Random"]
+        settings["N_AI_hunt_destroy"] = awn["N_AI_hunt_destroy"]
         menu_state = "title_screen"
         SpeedrunMode()
-    elif awnser == "2":
-        menu_state = "speedrun_init"
 
+def setting():
+    global menu_state
+    questions = [
+        {
+            'type': 'checkbox',
+            'message': 'Select settings',
+            'name': 'setting',
+            'choices': [
+                {
+                    'name': 'Music',
+                    'checked': settings["music"]
+                },
+                {
+                    'name': 'Show AI grid',
+                    'checked': settings["show ai grid"]
+                }
+            ],
+        }
+    ]
+
+    answers = prompt(questions, style=style)
+    ans = []
+    for ele in questions[0]["choices"]:
+        settings[ele["name"].lower()] = False
+    if not answers["setting"] == []:
+        for ele in answers["setting"]:
+            settings[ele.lower()] = True
+    menu_state = "title_screen"
 
 while 1:
     print()
     if menu_state == "title_screen":
         title_screen()
+    elif menu_state == "settings":
+        setting()
     elif menu_state == "play":
         play()
     elif menu_state == "speedrun_init":
@@ -98,4 +150,7 @@ while 1:
         print("|                                    |  ")
         print("|  >>> Reverting to titlescreen...   |  ")
         print("\!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!/  ")
+
+        print(menu_state)
+
         menu_state = "title_screen"

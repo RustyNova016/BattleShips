@@ -267,7 +267,9 @@ def SpeedrunMode():
 
     common_grid, hit_grid, ship_grid, ship_list = Generate_map()
 
-    def gamehost(coo):
+    flagmode = False
+
+    def gamehost(coo, flagmode=False):
         # global common_grid, hit_grid, ship_grid
 
         # 1) valid coordinates?
@@ -285,23 +287,27 @@ def SpeedrunMode():
         if hit_data == "-" or hit_data == "+":
             return ["retry", "already hited"]
 
-        if type(location_data) == str:
-            if location_data == " ":
-                common_grid.grid_dict_change(coo, "-")
-                hit_grid.grid_dict_change(coo, "-")
-                return ["water hit"]
-            else:
-                # Coo are hiting a ship
-                # ask all the ships if tey are the one hitted
-                # look if he sunk
-                # return info
+        if flagmode:
+            hit_grid.grid_dict_change(coo, "?")
+            return ["flag"]
+        else:
+            if type(location_data) == str:
+                if location_data == " ":
+                    common_grid.grid_dict_change(coo, "-")
+                    hit_grid.grid_dict_change(coo, "-")
+                    return ["water hit"]
+                else:
+                    # Coo are hiting a ship
+                    # ask all the ships if tey are the one hitted
+                    # look if he sunk
+                    # return info
 
-                for ship in ship_list:
-                    hit_dectecc = ship.hit_detection(coo)
-                    if hit_dectecc[0] == "hit":
-                        common_grid.grid_dict_change(coo, ["+", common_grid.grid_dict[coo]])
-                        hit_grid.grid_dict[coo] = "+"
-                        return hit_dectecc
+                    for ship in ship_list:
+                        hit_dectecc = ship.hit_detection(coo)
+                        if hit_dectecc[0] == "hit":
+                            common_grid.grid_dict_change(coo, ["+", common_grid.grid_dict[coo]])
+                            hit_grid.grid_dict[coo] = "+"
+                            return hit_dectecc
 
     # ready to start the game
 
@@ -316,6 +322,8 @@ def SpeedrunMode():
     if settings["N_Players"] != 0:
         for i in range(1, settings["N_Players"] + 1):
             player_list.append("Player " + str(i))
+    else:
+        print("No humans players")
 
     if player_list != []:
         for player in player_list:
@@ -330,23 +338,32 @@ def SpeedrunMode():
             print(hit_grid)
             while 1:
                 bruh = input("")
-                i += 1
-                bruh = gamehost(bruh)
+                flagmode = False
+                if bruh[:1] == "?":
+                    bruh = bruh[1:]
+                    flagmode = True
+
+                bruh = gamehost(bruh, flagmode)
                 hit_grid.update_grid()
                 common_grid.update_grid()
                 print(hit_grid)
 
-                if bruh[0] == "water hit":
-                    print("Water")
-                elif bruh[0] == "retry":
-                    print("Invalid coordinates, try again")
-                    i += -1
-                elif bruh[0] == "hit":
-                    if bruh[1] == "operational":
-                        print("hit")
-                    else:
-                        print(bruh[2] + " sunken!")
-                #sleep(1)
+                if flagmode:
+                    if bruh[0] == "retry":
+                        print("Invalid coordinates, try again")
+                else:
+                    i += 1
+                    if bruh[0] == "water hit":
+                        print("Water")
+                    elif bruh[0] == "retry":
+                        print("Invalid coordinates, try again")
+                        i += -1
+                    elif bruh[0] == "hit":
+                        if bruh[1] == "operational":
+                            print("hit")
+                        else:
+                            print(bruh[2] + " sunken!")
+                    #sleep(1)
 
                 gamewon = True
                 for shit in ship_list:
@@ -359,6 +376,8 @@ def SpeedrunMode():
             print("---------------------------------------------------")
             scoreboard.append([player, i])
 
+
+    print("AIs turns")
     IA_list = []
     if settings["N_AI_Random"] != 0:
         for i in range(0, settings["N_AI_Random"]):
@@ -385,9 +404,8 @@ def SpeedrunMode():
                 bruh = gamehost(bruh)
                 hit_grid.update_grid()
                 common_grid.update_grid()
-                print(common_grid)
-                #rint(hit_grid)
-
+                if settings["show ai grid"]:
+                    print(common_grid)
                 AI.recalibration(bruh)
                 if bruh[0] == "retry":
                     i += -1
@@ -401,6 +419,11 @@ def SpeedrunMode():
                 if gamewon:
                     break
 
+            print()
+            print("---------------------------------------------------")
+            print()
+            print(AI.AI_nickname + "'s score: " + str(i))
+            print()
             print("---------------------------------------------------")
             scoreboard.append([AI.AI_nickname, i])
 
