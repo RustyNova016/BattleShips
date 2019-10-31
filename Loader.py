@@ -1,21 +1,27 @@
-# from __future__ import print_function, unicode_literals
-# from pprint import *
-# from PyInquirer import *
+from __future__ import print_function, unicode_literals
+from pprint import *
+from PyInquirer import *
 from Methodes import *
 from Ships import *
 from random import *
 from time import *
 loading_errors = []
-
 settings = {
     "music": True,
-    "colors": False,
     "N_Players": 0,
     "N_AI_Random": 1,
     "N_AI_hunt_destroy": 1,
     "N_AI_chess": 0,
     "N_AI_heatmap": 0
 }
+
+style = style_from_dict({
+    Token.QuestionMark: '#E91E63 bold',
+    Token.Selected: '#673AB7 bold',
+    Token.Instruction: '',  # default
+    Token.Answer: '#2196f3 bold',
+    Token.Question: '',
+})
 
 # insert filler names
 with open('names.txt', 'r') as f:

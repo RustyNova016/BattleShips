@@ -15,6 +15,21 @@ from Battleships import *
 
 menu_state = "title_screen"
 
+ask_custom_ia = [
+    {
+        'type': 'input',
+        'name': 'Custom AI name',
+        'message': 'What\'s the name of the custom AI?',
+    },
+    {
+        'type': 'list',
+        'name': 'Hunting mode',
+        'message': 'How the AI find the ships?',
+        'choices': ['Random', 'Checkerboard'],
+        'filter': lambda val: val.lower()
+    }
+]
+
 
 def title_screen():
     global menu_state
