@@ -53,7 +53,7 @@ ship_list = []
 class IA:
     def __init__(self, modules):
         self.modules = modules
-        if self.modules["hunt module"] == "random" and not self.modules["no hit zone"] and not self.modules["destroy mode"]:
+        if self.modules["hunt module"] == "random"and not self.modules["destroy mode"]:
             self.AI_nickname = "Sergeant " + choice(AI_nicknames_list)
 
         elif self.modules["hunt module"] == "random" and self.modules["destroy mode"] and not self.modules["no hit zone"]:
@@ -62,11 +62,12 @@ class IA:
         elif self.modules["hunt module"] == "random" and self.modules["destroy mode"] and self.modules["no hit zone"]:
             self.AI_nickname = "Captain " + choice(AI_nicknames_list)
 
-        elif (self.modules["hunt module"] == "check" and not self.modules["destroy mode"] and not self.modules["no hit zone"]) or (self.modules["hunt module"] == "check" and self.modules["destroy mode"] and not self.modules["no hit zone"]):
+        elif self.modules["hunt module"] == "check" and not self.modules["no hit zone"]:
             self.modules["destroy mode"] = True
             self.AI_nickname = "Colonel " + choice(AI_nicknames_list)
 
-        elif self.modules["hunt module"] == "check" and self.modules["destroy mode"] and self.modules["no hit zone"]:
+        elif self.modules["hunt module"] == "check" and self.modules["no hit zone"]:
+            self.modules["destroy mode"] = True
             self.AI_nickname = "General " + choice(AI_nicknames_list)
 
         self.cells_hitted = []
@@ -110,6 +111,15 @@ class IA:
 
             if ship_status == "destroyed":  # if we destroyed the ship, we are back at hunting
                 self.mode = "hunt"
+                self.ship_cell_list.append(self.last_coo)
+                self.lasthit = self.last_coo
+                if self.modules["no hit zone"]:
+                    cel = []
+                    for celll in self.ship_cell_list:
+                        cel.extend(neighbour_cells(celll))
+                    for celll in cel:
+                        if celll in self.cells_left:
+                            self.cells_left.remove(celll)
                 return
 
             # if results == "retry" or results == "":
@@ -118,24 +128,13 @@ class IA:
             #
             # ... it interfered
 
-            # -Destroy mode------------
-            #      ?
-            #     ?+?
-            #      ?
-            #
-            # first we determine the direction of the ship
-            #  --> hit up, right, down, left
-            #
-            # we hit at in one dir, fist we  we check if the first shot was at the edge of the ship
-            #
-            # if we hit water, then we continue to hit
-
             if self.mode == "hunt":
                 if results == "water hit":
                     # nothing to do
                     return
                 elif results == "hit":
                     self.mode = "destroy"
+                    self.ship_cell_list = [self.last_coo]
                     self.lasthit = self.last_coo
                     self.firsthit = self.last_coo
                     self.suspected_cells = neighbour_cells(self.last_coo)
@@ -146,6 +145,7 @@ class IA:
                     self.supected_dirs.pop(0)
                     self.lasthit = self.firsthit
                 elif results == "hit":
+                    self.ship_cell_list.append(self.last_coo)
                     self.lasthit = self.last_coo
 
                 self.nexthit = self.lasthit
@@ -160,7 +160,7 @@ class IA:
                         elif self.supected_dirs[0] == "left":
                             self.nexthit = coordinates_calcs(self.nexthit, "+", (-1, 0))
 
-                        if self.nexthit in self.cells_hitted:
+                        if (self.nexthit in self.cells_hitted) or (not self.nexthit in self.cells_left):
                             self.supected_dirs.pop(0)
                             self.nexthit = self.firsthit
 
@@ -169,9 +169,6 @@ class IA:
                         self.nexthit = self.firsthit
 
     def hunt_checker(self):
-        pass
-
-    def no_hit_zone(self):
         pass
 
 
@@ -385,6 +382,10 @@ def SpeedrunMode():
     if settings["N_AI_hunt_destroy"] != 0:
         for i in range(0, settings["N_AI_hunt_destroy"]):
             IA_list.append(IA_hunt_destroy())
+
+    if settings["N_AI_hunt_destroy_ex"] != 0:
+        for i in range(0, settings["N_AI_hunt_destroy_ex"]):
+            IA_list.append(IA(ai_hunter_ex))
 
     if IA_list != []:
         for AI in IA_list:

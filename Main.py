@@ -9,8 +9,6 @@
 # "+" = battleship hit
 # ----------------------------------------------
 
-#todo other gamemodes
-
 print()
 print("Loading...")
 print()
@@ -86,9 +84,16 @@ def speedrun_init():
             'filter': lambda val: int(val)
         },
         {
+            'type': 'input',
+            'name': 'N_AI_hunt_destroy_ex',
+            'message': 'Number of AI (Type: Hunt & destroy +): ',
+            'validate': NumberValidator,
+            'filter': lambda val: int(val)
+        },
+        {
             'type': 'list',
             'name': 'ready',
-            'message': 'Gamemode ?',
+            'message': 'Ready ?',
             'choices': ['Start', 'Return'],
             'filter': lambda val: val.lower()
         }
@@ -101,6 +106,7 @@ def speedrun_init():
         settings["N_Players"] = awn["N_player"]
         settings["N_AI_Random"] = awn["N_AI_Random"]
         settings["N_AI_hunt_destroy"] = awn["N_AI_hunt_destroy"]
+        settings["N_AI_hunt_destroy_ex"] = awn["N_AI_hunt_destroy_ex"]
         menu_state = "title_screen"
         SpeedrunMode()
 
