@@ -175,12 +175,6 @@ class IA:
         pass
 
 
-def IA_random():
-    return IA(ai_random)
-
-def IA_hunt_destroy():
-    return IA(ai_hunter)
-
 def Generate_map():
     ship_list = []
     grid_used = []
@@ -380,16 +374,15 @@ def SpeedrunMode():
     IA_list = []
     if settings["N_AI_Random"] != 0:
         for i in range(0, settings["N_AI_Random"]):
-            IA_list.append(IA_random())
+            IA_list.append(IA(ai_random))
 
     if settings["N_AI_hunt_destroy"] != 0:
         for i in range(0, settings["N_AI_hunt_destroy"]):
-            IA_list.append(IA_hunt_destroy())
+            IA_list.append(IA(ai_hunter))
 
     if IA_list != []:
         for AI in IA_list:
             i = 0
-
             ship_grid.reset_grid_dict()
             hit_grid.reset_grid_dict()
             common_grid.reset_grid_dict()
