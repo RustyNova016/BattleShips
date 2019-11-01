@@ -36,6 +36,7 @@ def title_screen():
     ]
     menu_state = prompt(questions, style=style)["main"]
 
+
 def play():
     global menu_state
     print("------------------------------")

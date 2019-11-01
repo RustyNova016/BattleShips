@@ -40,8 +40,9 @@ settings = {
     "show ai grid": False,
     "debug mode": False,
     "N_Players": 0,
-    "N_AI_Random": 1,
-    "N_AI_hunt_destroy": 1,
+    "N_AI_Random": 0,
+    "N_AI_hunt_destroy": 0,
+    "N_AI_hunt_destroy_ex":0,
     "N_AI_chess": 0,
     "N_AI_heatmap": 0
 }
@@ -76,3 +77,34 @@ with open(path.join(name_file_path), 'r') as f:
 #     from pygame import
 
 a = 4
+
+
+ai_random = {
+    "hunt module": "random",
+    "destroy mode": False,
+    "no hit zone": False,
+}
+
+ai_hunter = {
+    "hunt module": "random",
+    "destroy mode": True,
+    "no hit zone": False,
+}
+
+ai_hunter_ex = {
+    "hunt module": "random",
+    "destroy mode": True,
+    "no hit zone": True,
+}
+
+ai_check_hunter = {
+    "hunt module": "check",
+    "destroy mode": True,
+    "no hit zone": False,
+}
+
+ai_check_hunter_ex = {
+    "hunt module": "check",
+    "destroy mode": True,
+    "no hit zone": True,
+}
