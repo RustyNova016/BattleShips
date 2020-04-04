@@ -17,8 +17,8 @@ coo_dict = {
 class GridOverflowError(Exception):
     """ uhm, that's not in the grid"""
 
-# Python3 program to Split string into characters
 def split(word):
+    """Split string into characters"""
     return [char for char in word]
 
 def coordinate_converter(coordinate="", mode="num"):

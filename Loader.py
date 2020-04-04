@@ -39,6 +39,7 @@ settings = {
     "music": True,
     "show ai grid": False,
     "debug mode": False,
+    "ai wait time": False,
     "N_Players": 0,
     "N_AI_Random": 0,
     "N_AI_hunt_destroy": 0,

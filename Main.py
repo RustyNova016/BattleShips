@@ -44,7 +44,7 @@ def play():
             'type': 'list',
             'name': 'main',
             'message': 'Gamemode ?',
-            'choices': ['Speedrun', 'Return'],
+            'choices': ['Speedrun', "Battle Royal (Comming Soon)", 'Return'],
             'filter': lambda val: val.lower() + "_init"
         }
     ]
@@ -117,18 +117,16 @@ def setting():
             'type': 'checkbox',
             'message': 'Select settings',
             'name': 'setting',
-            'choices': [
-                {
-                    'name': 'Music',
-                    'checked': settings["music"]
-                },
-                {
-                    'name': 'Show AI grid',
-                    'checked': settings["show ai grid"]
-                }
-            ],
+            'choices': [],
         }
     ]
+
+    def setting_add(setting_name, questions):
+        questions[0]["choices"].append({"name": setting_name, "checked": settings[setting_name]})
+
+    setting_add("music", questions)
+    setting_add("show ai grid", questions)
+    setting_add("ai wait time", questions)
 
     answers = prompt(questions, style=style)
     ans = []

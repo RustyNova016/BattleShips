@@ -82,6 +82,8 @@ class IA:
             for ib in range(1,11):
                 self.cells_left.append(char + str(ib))
             char = chr(ord(char) + 1)  # Get the ASCII number of char, adding 1, returning to string
+        self.grid_list = [self.cells_left]
+        self.lowest_size = 2
 
     def guess(self):
         if self.modules["destroy mode"] and self.mode == "destroy":
@@ -134,6 +136,7 @@ class IA:
                     return
                 elif results == "hit":
                     self.mode = "destroy"
+                    self.dir_lock = False
                     self.ship_cell_list = [self.last_coo]
                     self.lasthit = self.last_coo
                     self.firsthit = self.last_coo
@@ -145,6 +148,14 @@ class IA:
                     self.supected_dirs.pop(0)
                     self.lasthit = self.firsthit
                 elif results == "hit":
+                    if self.dir_lock:
+                        if self.supected_dirs[0] == "top":
+                            self.supected_dirs.pop(0)
+                            self.dir_lock = True
+                        elif self.supected_dirs[0] == "right":
+                            self.supected_dirs.pop(0)
+                            self.dir_lock = True
+
                     self.ship_cell_list.append(self.last_coo)
                     self.lasthit = self.last_coo
 
@@ -160,7 +171,7 @@ class IA:
                         elif self.supected_dirs[0] == "left":
                             self.nexthit = coordinates_calcs(self.nexthit, "+", (-1, 0))
 
-                        if (self.nexthit in self.cells_hitted) or (not self.nexthit in self.cells_left):
+                        if (self.nexthit in self.cells_hitted) or not (self.nexthit in self.cells_left):
                             self.supected_dirs.pop(0)
                             self.nexthit = self.firsthit
 
@@ -402,7 +413,9 @@ def SpeedrunMode():
                 AI.recalibration(bruh)
                 if bruh[0] == "retry":
                     i += -1
-                #sleep(1)
+
+                if settings["ai wait time"]:
+                    sleep(1)
 
                 gamewon = True
                 for shit in ship_list:
